@@ -1,10 +1,10 @@
 const express = require('express');
 
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-
 const User = require('../models/Users');
 const Response = require('../helpers/response');
+
+const { signAccessToken, signRefreshToken, verifyRefreshToken } = require('../helpers/jwt');
 
 // Auth login
 function login(arg) {
@@ -22,18 +22,20 @@ function login(arg) {
             arg.res.status(406).json(response);
         } else {
             bcrypt.compare(password, user.password)
-                .then((result) => {
+                .then(async (result) => {
                     if (!result) {
                         const response = Response.make(406, 'Authentication failed.', null);
                         arg.res.status(406).json(response);
                     } else {
-                        const payload = { username };
-                        const token = jwt.sign(payload, arg.req.app.get('api_secret_key'), {
-                            expiresIn: "1 days"
-                        });
+                        const user_id = user._id;
+                        const payload = { user_id };
+
+                        const token = await signAccessToken(payload);
+                        const refreshToken = await signRefreshToken(user._id);
 
                         const response = Response.make(200, 'Success', {
-                            token: token
+                            token: token,
+                            refresh_token: refreshToken
                         });
                         arg.res.status(200).json(response);
                     }
@@ -46,6 +48,43 @@ function login(arg) {
     });
 }
 
+
+// Refresh Token
+async function refreshToken(arg) {
+    const { refresh_token } = arg.req.body;
+
+    try {
+		if (!refresh_token) {
+            const response = Response.make(406, 'Authentication failed.', null);
+            arg.res.status(406).json(response);
+		}
+
+		const user_id = await verifyRefreshToken(refresh_token);
+
+        if(typeof user_id === 'undefined') {
+            const response = Response.make(406, 'Authentication failed.', null);
+            arg.res.status(406).json(response); 
+        } else {
+
+            const accessToken = await signAccessToken(user_id);
+            const refreshToken = await signRefreshToken(user_id);
+
+            const response = Response.make(200, 'Success', {
+                token: accessToken,
+                refresh_token: refreshToken
+            });
+            arg.res.status(200).json(response);
+        }
+
+
+
+	} catch (e) {
+        const response = Response.make(406, 'Authentication failed.', null);
+        arg.res.status(406).json(response);
+	}
+}
+
 module.exports = {
-    login
+    login,
+    refreshToken
 }

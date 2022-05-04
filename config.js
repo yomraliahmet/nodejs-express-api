@@ -5,9 +5,12 @@ const baseUrl = `http://localhost:${ port }/api/${ version }`;
 const docsEndpoint = "/api-docs";
 
 module.exports = {
-    api_secret_key: 'yours_api_key',
     port: port,
     apiPath: basePath,
     apiUrl: baseUrl,
-    docsEndpoint: docsEndpoint
+    docsEndpoint: docsEndpoint,
+    jwtSecret: 'yours_jwt_secret',
+    jwtRefreshSecret: 'yours_jwt_refresh_secret',
+    jwtExpiration: 60 * 60,        // 1 hour
+    jwtRefreshExpiration: 60 * 60 * 24,   // 24 hours
 }

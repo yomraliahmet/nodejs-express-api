@@ -20,7 +20,6 @@ generateSwaggerDocs(app);
 const db = require('./database/db')();
 
 // config
-app.set('api_secret_key', config.api_secret_key);
 app.set('apiUrl', config.apiUrl);
 app.set('docsEndpoint', config.docsEndpoint);
 

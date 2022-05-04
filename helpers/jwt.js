@@ -38,8 +38,23 @@ const verifyAccessToken = (req, res, next) => {
                 const response = Response.make(401, 'Unauthorized', null);
                 res.status(401).json(response);
             } else {
-                req.decode = decoded;
-                next();
+
+                RefreshToken.findOne({ user_id: decoded.user_id })
+                .then((data) => {
+                    console.log(data);
+                    if(data) {                        
+                        req.token = token;
+                        req.decode = decoded;
+                        next();
+                    } else {
+                        const response = Response.make(401, 'Unauthorized', null);
+                        res.status(401).json(response);
+                    }
+                })
+                .catch((err) => {
+                    const response = Response.make(401, 'Unauthorized', null);
+                    res.status(401).json(response);
+                })
             }
         })
     } else {
@@ -95,10 +110,21 @@ const verifyRefreshToken = async (refresh_token) => {
     });
 };
 
+const destroyAccesToken = async (user_id) => {
+
+    return await RefreshToken.findOneAndRemove({ user_id: user_id })
+    .then((data) => {
+        return 1;
+    })
+    .catch((err) => {
+        return 0;
+    })
+}
 
 module.exports = {
     signAccessToken,
     signRefreshToken,
     verifyAccessToken,
-    verifyRefreshToken
+    verifyRefreshToken,
+    destroyAccesToken
 };

@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/Users');
 const Response = require('../helpers/response');
 
-const { signAccessToken, signRefreshToken, verifyRefreshToken } = require('../helpers/jwt');
+const { signAccessToken, signRefreshToken, verifyRefreshToken, destroyAccesToken } = require('../helpers/jwt');
 
 // Auth login
 function login(arg) {
@@ -84,7 +84,24 @@ async function refreshToken(arg) {
 	}
 }
 
+function logout(arg) {
+
+    const token = arg.req.token;
+    const user_id = arg.req.decode.user_id;
+
+    const destroy = destroyAccesToken( user_id );
+
+    if(destroy) {
+        const response = Response.make(200, 'Success', null);
+        arg.res.status(200).json(response);
+    } else {
+        const response = Response.make(406, 'Authentication failed.', null);
+        arg.res.status(406).json(response);
+    }
+}
+
 module.exports = {
     login,
-    refreshToken
+    refreshToken,
+    logout
 }

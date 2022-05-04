@@ -127,3 +127,50 @@ function authRefreshToken()
      *                   default: null                            
      */
 }
+
+
+
+function authLogout() 
+{
+     /**
+     * @openapi
+     * /auth/logout:
+     *   post:
+     *     summary: Logout
+     *     tags:
+     *       - Auth 
+     *     security:
+     *       - bearerAuth: []
+     *     responses:
+     *       200:
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 code:
+     *                   type: integer
+     *                   default: 200             
+     *                 message:
+     *                   type: string
+     *                   default: Success             
+     *                 data:
+     *                   type: null
+     *                   default: null
+     *       default:
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 code:
+     *                   type: integer
+     *                   default: 400             
+     *                 message:
+     *                   type: string
+     *                   default: Bad Request                            
+     *                 data:
+     *                   type: null
+     *                   default: null                            
+     */
+}
